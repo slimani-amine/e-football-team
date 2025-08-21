@@ -1,6 +1,9 @@
+"use client";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, MessageCircle, Heart, Share2 } from "lucide-react";
+import CountUp from "react-countup";
 
 const testimonials = [
   {
@@ -24,10 +27,34 @@ const testimonials = [
 ];
 
 const communityStats = [
-  { icon: Users, label: "Community Members", value: "25,000+" },
-  { icon: MessageCircle, label: "Discord Active", value: "5,000+" },
-  { icon: Heart, label: "Social Followers", value: "100,000+" },
-  { icon: Share2, label: "Monthly Views", value: "2M+" },
+  {
+    icon: Users,
+    label: "Community Members",
+    value: "25,000+",
+    countValue: 25000,
+    suffix: "+",
+  },
+  {
+    icon: MessageCircle,
+    label: "Discord Active",
+    value: "5,000+",
+    countValue: 5000,
+    suffix: "+",
+  },
+  {
+    icon: Heart,
+    label: "Social Followers",
+    value: "100,000+",
+    countValue: 100000,
+    suffix: "+",
+  },
+  {
+    icon: Share2,
+    label: "Monthly Views",
+    value: "2M+",
+    countValue: 2,
+    suffix: "M+",
+  },
 ];
 
 export function CommunitySection() {
@@ -47,10 +74,23 @@ export function CommunitySection() {
         {/* Community Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
           {communityStats.map((stat, index) => (
-            <Card key={index} className="text-center">
+            <Card
+              key={index}
+              className="text-center hover:shadow-lg transition-shadow"
+            >
               <CardContent className="p-6">
                 <stat.icon className="h-8 w-8 text-primary mx-auto mb-3" />
-                <div className="text-2xl font-bold mb-1">{stat.value}</div>
+                <div className="text-2xl font-bold mb-1">
+                  <CountUp
+                    end={stat.countValue}
+                    duration={2.5}
+                    delay={index * 0.2}
+                    suffix={stat.suffix}
+                    separator=","
+                    enableScrollSpy
+                    scrollSpyOnce
+                  />
+                </div>
                 <div className="text-sm text-muted-foreground">
                   {stat.label}
                 </div>
