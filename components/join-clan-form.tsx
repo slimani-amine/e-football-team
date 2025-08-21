@@ -116,7 +116,7 @@ export function JoinClanForm() {
                 Preferred Position
               </Label>
               <Select onValueChange={(value) => handleChange("position", value)}>
-                <SelectTrigger className="bg-gray-900 border-red-800 text-white focus:border-red-500">
+                <SelectTrigger className="w-full bg-gray-900 border-red-800 text-white focus:border-red-500">
                   <SelectValue placeholder="Select position" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-900 border-red-800">
@@ -149,7 +149,7 @@ export function JoinClanForm() {
                 Gaming Platform
               </Label>
               <Select onValueChange={(value) => handleChange("platform", value)}>
-                <SelectTrigger className="bg-gray-900 border-red-800 text-white focus:border-red-500">
+                <SelectTrigger className="w-full bg-gray-900 border-red-800 text-white focus:border-red-500">
                   <SelectValue placeholder="Select platform" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-900 border-red-800">
@@ -169,7 +169,7 @@ export function JoinClanForm() {
               E-Football Experience
             </Label>
             <Select onValueChange={(value) => handleChange("experience", value)}>
-              <SelectTrigger className="bg-gray-900 border-red-800 text-white focus:border-red-500">
+              <SelectTrigger className="w-full bg-gray-900 border-red-800 text-white focus:border-red-500">
                 <SelectValue placeholder="Select your experience level" />
               </SelectTrigger>
               <SelectContent className="bg-gray-900 border-red-800">
