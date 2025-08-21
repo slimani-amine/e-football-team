@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Play, Trophy, Target, Zap, Crown } from "lucide-react"
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Play, Trophy, Target, Zap, Crown } from "lucide-react";
 
 const highlights = [
   {
@@ -73,29 +73,38 @@ const highlights = [
     category: "Defense",
     icon: <Zap className="w-5 h-5" />,
   },
-]
+];
 
-const categories = ["All", "Championship", "Goals", "Skills", "Season", "Defense"]
+const categories = [
+  "All",
+  "Championship",
+  "Goals",
+  "Skills",
+  "Season",
+  "Defense",
+];
 
 export function HighlightsSection() {
-  const [selectedCategory, setSelectedCategory] = useState("All")
-  const [selectedVideo, setSelectedVideo] = useState<number | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedVideo, setSelectedVideo] = useState<number | null>(null);
 
   const filteredHighlights =
-    selectedCategory === "All" ? highlights : highlights.filter((h) => h.category === selectedCategory)
+    selectedCategory === "All"
+      ? highlights
+      : highlights.filter((h) => h.category === selectedCategory);
 
   const handleVideoClick = (id: number) => {
-    setSelectedVideo(id)
-    console.log("[v0] Playing video:", id)
+    setSelectedVideo(id);
+    console.log("[v0] Playing video:", id);
     // Scroll to the featured video section smoothly
     setTimeout(() => {
-      const featuredSection = document.querySelector('.featured-video-section');
+      const featuredSection = document.querySelector(".featured-video-section");
       if (featuredSection) {
-        featuredSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        featuredSection.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }, 100);
     // Here you would integrate with a video player
-  }
+  };
 
   return (
     <div className="space-y-8">
@@ -120,37 +129,42 @@ export function HighlightsSection() {
       {/* Featured Video */}
       {selectedVideo && (
         <Card className="featured-video-section bg-black/80 border-red-600 border-2 shadow-2xl shadow-red-900/50 relative">
-          
           <CardContent className="p-6">
             <button
-            onClick={() => setSelectedVideo(null)}
-            className="absolute top-8 right-4 z-10 w-8 h-8 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
-            aria-label="Close video"
-          >
-            ✕
-          </button>
+              onClick={() => setSelectedVideo(null)}
+              className="absolute top-8 right-4 z-10 w-8 h-8 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+              aria-label="Close video"
+            >
+              ✕
+            </button>
             <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden mb-4">
-              {selectedVideo && (() => {
-                const videoUrl = highlights.find((h) => h.id === selectedVideo)?.videoUrl || "";
-                // Convert YouTube URL to embed format
-                const embedUrl = videoUrl.includes('youtube.com/watch?v=') 
-                  ? videoUrl.replace('youtube.com/watch?v=', 'youtube.com/embed/')
-                  : videoUrl.includes('youtu.be/') 
-                  ? videoUrl.replace('youtu.be/', 'youtube.com/embed/')
-                  : videoUrl;
-                
-                return (
-                  <iframe
-                    src={embedUrl}
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                  />
-                );
-              })()}
+              {selectedVideo &&
+                (() => {
+                  const videoUrl =
+                    highlights.find((h) => h.id === selectedVideo)?.videoUrl ||
+                    "";
+                  // Convert YouTube URL to embed format
+                  const embedUrl = videoUrl.includes("youtube.com/watch?v=")
+                    ? videoUrl.replace(
+                        "youtube.com/watch?v=",
+                        "youtube.com/embed/"
+                      )
+                    : videoUrl.includes("youtu.be/")
+                    ? videoUrl.replace("youtu.be/", "youtube.com/embed/")
+                    : videoUrl;
+
+                  return (
+                    <iframe
+                      src={embedUrl}
+                      width="100%"
+                      height="100%"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
+                  );
+                })()}
             </div>
             <div className="text-center mb-4">
               <h3 className="text-white text-xl font-bold mb-2">
@@ -193,8 +207,12 @@ export function HighlightsSection() {
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="text-lg font-bold text-red-400 mb-2 font-serif">{highlight.title}</h3>
-                <p className="text-gray-300 text-sm mb-3">{highlight.description}</p>
+                <h3 className="text-lg font-bold text-red-400 mb-2 font-serif">
+                  {highlight.title}
+                </h3>
+                <p className="text-gray-300 text-sm mb-3">
+                  {highlight.description}
+                </p>
                 <div className="flex justify-between items-center text-sm text-gray-400">
                   <span>{highlight.views} views</span>
                   <span className="text-red-400">▶ Watch Now</span>
@@ -209,9 +227,13 @@ export function HighlightsSection() {
       <div className="text-center mt-12">
         <Card className="bg-gradient-to-r from-red-900/50 to-black/50 border-red-600 border-2">
           <CardContent className="p-8">
-            <h3 className="text-3xl font-bold text-red-500 mb-4 font-serif">WANT TO BE IN THE NEXT HIGHLIGHT REEL?</h3>
+            <h3 className="text-3xl font-bold text-red-500 mb-4 font-serif">
+              WANT TO BE IN THE NEXT HIGHLIGHT REEL?
+            </h3>
             <p className="text-gray-300 mb-6 text-lg">
-              {"Join Barba Blanca Football and become part of our legendary moments"}
+              {
+                "Join Barba Blanca Football and become part of our legendary moments"
+              }
             </p>
             <Button
               className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-bold py-3 px-8 text-lg transition-all duration-300 transform hover:scale-105"
@@ -223,5 +245,5 @@ export function HighlightsSection() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
