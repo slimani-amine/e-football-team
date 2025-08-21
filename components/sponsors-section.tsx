@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card";
 
 const sponsors = [
   {
@@ -21,52 +21,57 @@ const sponsors = [
     logo: "/generic-energy-drink-logo.png",
     tier: "Official Drink",
   },
-  {
-    name: "TechWear",
-    logo: "/esports-apparel-logo.png",
-    tier: "Apparel Partner",
-  },
-  {
-    name: "CloudHost",
-    logo: "/cloud-hosting-logo.png",
-    tier: "Technology Partner",
-  },
-]
+];
 
 export function SponsorsSection() {
   return (
     <section id="sponsors" className="py-20">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="font-playfair font-bold text-4xl md:text-5xl mb-4">Our Partners</h2>
+          <h2 className="font-playfair font-bold text-4xl md:text-5xl mb-4">
+            Our Partners
+          </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Proud to work with industry-leading brands that support our journey to excellence
+            Proud to work with industry-leading brands that support our journey
+            to excellence
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-          {sponsors.map((sponsor, index) => (
-            <Card key={index} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-6 text-center">
-                <img
-                  src={sponsor.logo || "/placeholder.svg"}
-                  alt={sponsor.name}
-                  className="w-full h-16 object-contain mb-3 grayscale group-hover:grayscale-0 transition-all duration-300"
-                />
-                <h3 className="font-semibold text-sm mb-1">{sponsor.name}</h3>
-                <p className="text-xs text-muted-foreground">{sponsor.tier}</p>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="flex justify-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl">
+            {sponsors.map((sponsor, index) => (
+              <Card
+                key={index}
+                className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-none"
+              >
+                <CardContent className="p-6 text-center">
+                  <img
+                    src={sponsor.logo || "/placeholder.svg"}
+                    alt={sponsor.name}
+                    className="w-full h-16 object-contain mb-3 grayscale group-hover:grayscale-0 transition-all duration-300"
+                  />
+                  <h3 className="font-semibold text-sm mb-1">{sponsor.name}</h3>
+                  <p className="text-xs text-muted-foreground">
+                    {sponsor.tier}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-muted-foreground mb-4">Interested in partnering with us?</p>
-          <a href="mailto:partnerships@thunderboltsfc.com" className="text-primary hover:underline font-semibold">
+          <p className="text-muted-foreground mb-4">
+            Interested in partnering with us?
+          </p>
+          <a
+            href="mailto:partnerships@thunderboltsfc.com"
+            className="text-primary hover:underline font-semibold"
+          >
             Contact our partnership team
           </a>
         </div>
       </div>
     </section>
-  )
+  );
 }
