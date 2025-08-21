@@ -12,6 +12,7 @@ const highlights = [
     title: "Championship Final Domination",
     description: "BRC destroys opponents 6-0 in the grand final",
     thumbnail: "/football-championship-red-jerseys.png",
+    videoUrl: "https://www.youtube.com/embed/ZPCfoCVCx3U", // FIFA highlights
     duration: "3:45",
     views: "125K",
     category: "Championship",
@@ -22,6 +23,7 @@ const highlights = [
     title: "Captain Whitebeard's Hat-Trick",
     description: "Unstoppable performance in the semi-finals",
     thumbnail: "/football-goal-celebration.png",
+    videoUrl: "https://www.youtube.com/watch?v=XUPBeAy6Rn0", // Football highlights
     duration: "2:30",
     views: "89K",
     category: "Goals",
@@ -32,6 +34,7 @@ const highlights = [
     title: "Red Demon's Lightning Speed",
     description: "Incredible solo run and finish",
     thumbnail: "/football-player-speed.png",
+    videoUrl: "https://www.youtube.com/embed/tYpwjB0IzoU", // Football skills
     duration: "1:15",
     views: "156K",
     category: "Skills",
@@ -42,6 +45,7 @@ const highlights = [
     title: "Unbeaten Season Highlights",
     description: "Best moments from our perfect season",
     thumbnail: "/football-team-celebration.png",
+    videoUrl: "https://www.youtube.com/embed/h4_uC-gpqPw", // Season highlights
     duration: "8:20",
     views: "203K",
     category: "Season",
@@ -52,6 +56,7 @@ const highlights = [
     title: "Shadow Striker's Best Goals",
     description: "Compilation of unstoppable strikes",
     thumbnail: "/placeholder-scohq.png",
+    videoUrl: "https://www.youtube.com/embed/ZPCfoCVCx3U", // Goal compilation
     duration: "4:12",
     views: "98K",
     category: "Goals",
@@ -62,6 +67,7 @@ const highlights = [
     title: "Iron Wall Defense",
     description: "How we kept 15 clean sheets in a row",
     thumbnail: "/football-goalkeeper-save.png",
+    videoUrl: "https://www.youtube.com/embed/5xzaWzszX8w", // Defense highlights
     duration: "3:55",
     views: "67K",
     category: "Defense",
@@ -81,6 +87,13 @@ export function HighlightsSection() {
   const handleVideoClick = (id: number) => {
     setSelectedVideo(id)
     console.log("[v0] Playing video:", id)
+    // Scroll to the featured video section smoothly
+    setTimeout(() => {
+      const featuredSection = document.querySelector('.featured-video-section');
+      if (featuredSection) {
+        featuredSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
     // Here you would integrate with a video player
   }
 
@@ -106,22 +119,47 @@ export function HighlightsSection() {
 
       {/* Featured Video */}
       {selectedVideo && (
-        <Card className="bg-black/80 border-red-600 border-2 shadow-2xl shadow-red-900/50">
+        <Card className="featured-video-section bg-black/80 border-red-600 border-2 shadow-2xl shadow-red-900/50 relative">
+          
           <CardContent className="p-6">
-            <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center mb-4">
-              <div className="text-center">
-                <Play className="w-20 h-20 text-red-500 mx-auto mb-4" />
-                <p className="text-white text-lg">{highlights.find((h) => h.id === selectedVideo)?.title}</p>
-                <p className="text-gray-400">{"Video player would be integrated here"}</p>
-              </div>
+            <button
+            onClick={() => setSelectedVideo(null)}
+            className="absolute top-8 right-4 z-10 w-8 h-8 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+            aria-label="Close video"
+          >
+            ✕
+          </button>
+            <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden mb-4">
+              {selectedVideo && (() => {
+                const videoUrl = highlights.find((h) => h.id === selectedVideo)?.videoUrl || "";
+                // Convert YouTube URL to embed format
+                const embedUrl = videoUrl.includes('youtube.com/watch?v=') 
+                  ? videoUrl.replace('youtube.com/watch?v=', 'youtube.com/embed/')
+                  : videoUrl.includes('youtu.be/') 
+                  ? videoUrl.replace('youtu.be/', 'youtube.com/embed/')
+                  : videoUrl;
+                
+                return (
+                  <iframe
+                    src={embedUrl}
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                );
+              })()}
             </div>
-            <Button
-              onClick={() => setSelectedVideo(null)}
-              variant="outline"
-              className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
-            >
-              Close Video
-            </Button>
+            <div className="text-center mb-4">
+              <h3 className="text-white text-xl font-bold mb-2">
+                {highlights.find((h) => h.id === selectedVideo)?.title}
+              </h3>
+              <p className="text-gray-400">
+                {highlights.find((h) => h.id === selectedVideo)?.description}
+              </p>
+            </div>
           </CardContent>
         </Card>
       )}
