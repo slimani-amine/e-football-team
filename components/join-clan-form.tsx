@@ -1,14 +1,20 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function JoinClanForm() {
   const [formData, setFormData] = useState({
@@ -20,31 +26,40 @@ export function JoinClanForm() {
     gamertag: "",
     platform: "",
     message: "",
-  })
+  });
 
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("[v0] Join form submitted:", formData)
-    setIsSubmitted(true)
-  }
+    e.preventDefault();
+    console.log("[v0] Join form submitted:", formData);
+    setIsSubmitted(true);
+  };
 
   const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   if (isSubmitted) {
     return (
       <Card className="bg-gradient-to-br from-red-900/90 to-black/90 border-red-500 border-2 shadow-2xl shadow-red-900/50">
         <CardHeader className="text-center">
-          <CardTitle className="text-4xl font-bold text-red-400 font-serif mb-4">🔥 WELCOME TO THE CLAN! 🔥</CardTitle>
+          <CardTitle className="text-4xl font-bold text-red-400 font-serif mb-4">
+            🔥 WELCOME TO THE CLAN! 🔥
+          </CardTitle>
         </CardHeader>
         <CardContent className="text-center space-y-4">
           <div className="text-6xl mb-6">⚽</div>
-          <p className="text-xl text-gray-200 font-semibold">Your application has been received, warrior!</p>
-          <p className="text-gray-300">Our clan leaders will review your skills and contact you within 24-48 hours.</p>
-          <p className="text-red-400 font-bold">Prepare yourself for domination on the field!</p>
+          <p className="text-xl text-gray-200 font-semibold">
+            Your application has been received, warrior!
+          </p>
+          <p className="text-gray-300">
+            Our clan leaders will review your skills and contact you within
+            24-48 hours.
+          </p>
+          <p className="text-red-400 font-bold">
+            Prepare yourself for domination on the field!
+          </p>
           <Button
             onClick={() => setIsSubmitted(false)}
             className="mt-6 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-bold py-3 px-8 transition-all duration-300 transform hover:scale-105"
@@ -53,14 +68,18 @@ export function JoinClanForm() {
           </Button>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
     <Card className="bg-black/80 border-red-600 border-2 shadow-2xl shadow-red-900/50">
       <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold text-red-500 font-serif">RECRUITMENT FORM</CardTitle>
-        <p className="text-gray-400">{"Fill out the form below to join our elite squad"}</p>
+        <CardTitle className="text-3xl font-bold text-red-500 font-serif">
+          RECRUITMENT FORM
+        </CardTitle>
+        <p className="text-gray-400">
+          {"Fill out the form below to join our elite squad"}
+        </p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -115,7 +134,9 @@ export function JoinClanForm() {
               <Label htmlFor="position" className="text-red-400 font-semibold">
                 Preferred Position
               </Label>
-              <Select onValueChange={(value) => handleChange("position", value)}>
+              <Select
+                onValueChange={(value) => handleChange("position", value)}
+              >
                 <SelectTrigger className="w-full bg-gray-900 border-red-800 text-white focus:border-red-500">
                   <SelectValue placeholder="Select position" />
                 </SelectTrigger>
@@ -148,7 +169,9 @@ export function JoinClanForm() {
               <Label htmlFor="platform" className="text-red-400 font-semibold">
                 Gaming Platform
               </Label>
-              <Select onValueChange={(value) => handleChange("platform", value)}>
+              <Select
+                onValueChange={(value) => handleChange("platform", value)}
+              >
                 <SelectTrigger className="w-full bg-gray-900 border-red-800 text-white focus:border-red-500">
                   <SelectValue placeholder="Select platform" />
                 </SelectTrigger>
@@ -168,15 +191,21 @@ export function JoinClanForm() {
             <Label htmlFor="experience" className="text-red-400 font-semibold">
               E-Football Experience
             </Label>
-            <Select onValueChange={(value) => handleChange("experience", value)}>
+            <Select
+              onValueChange={(value) => handleChange("experience", value)}
+            >
               <SelectTrigger className="w-full bg-gray-900 border-red-800 text-white focus:border-red-500">
                 <SelectValue placeholder="Select your experience level" />
               </SelectTrigger>
               <SelectContent className="bg-gray-900 border-red-800">
                 <SelectItem value="beginner">Beginner (0-1 years)</SelectItem>
-                <SelectItem value="intermediate">Intermediate (1-3 years)</SelectItem>
+                <SelectItem value="intermediate">
+                  Intermediate (1-3 years)
+                </SelectItem>
                 <SelectItem value="advanced">Advanced (3-5 years)</SelectItem>
-                <SelectItem value="professional">Professional (5+ years)</SelectItem>
+                <SelectItem value="professional">
+                  Professional (5+ years)
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -204,5 +233,5 @@ export function JoinClanForm() {
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }
