@@ -1,11 +1,14 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { ChevronDown, Flame } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { ChevronDown, Flame } from "lucide-react";
 
 export function HeroSection() {
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
+    <section
+      id="home"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black"
+    >
       <div className="absolute inset-0">
         <img
           src="/images/barba-blanca-hero.png"
@@ -92,18 +95,31 @@ export function HeroSection() {
         </div>
 
         <div className="mt-16 text-center">
-          <div className="text-red-400 font-bold text-sm tracking-widest mb-2">FOOTBALL 2025</div>
+          <div className="text-red-400 font-bold text-sm tracking-widest mb-2">
+            FOOTBALL 2025
+          </div>
           <div className="flex items-center justify-center gap-2">
             <div className="w-8 h-0.5 bg-red-500"></div>
-            <div className="text-white font-bold text-xs">BARBA BLANCA FC - BRC</div>
+            <div className="text-white font-bold text-xs">
+              BARBA BLANCA FC - BRC
+            </div>
             <div className="w-8 h-0.5 bg-red-500"></div>
           </div>
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-red-400 animate-bounce">
+      <button
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-red-400 animate-bounce hover:text-red-300 transition-colors cursor-pointer p-2"
+        onClick={() => {
+          const nextSection =
+            document.getElementById("players") ||
+            document.querySelector("section:nth-of-type(2)");
+          nextSection?.scrollIntoView({ behavior: "smooth" });
+        }}
+        aria-label="Scroll to next section"
+      >
         <ChevronDown className="h-8 w-8" />
-      </div>
+      </button>
     </section>
-  )
+  );
 }
