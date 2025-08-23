@@ -1,105 +1,187 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Save, X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface TeamMember {
   id: number;
   name: string;
-  position: string;
-  status: string;
-  joinDate: string;
-  email: string;
-  phone: string;
 }
 
 export default function TeamManagementPage() {
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
-    { id: 1, name: "CAPTAIN WHITEBEARD", position: "Captain", status: "active", joinDate: "2023-01-15", email: "captain@barbablanca.com", phone: "+1234567890" },
-    { id: 2, name: "RED DEMON", position: "Striker", status: "active", joinDate: "2023-02-20", email: "demon@barbablanca.com", phone: "+1234567891" },
-    { id: 3, name: "IRON WALL", position: "Defender", status: "active", joinDate: "2023-03-10", email: "wall@barbablanca.com", phone: "+1234567892" },
-    { id: 4, name: "SHADOW KEEPER", position: "Goalkeeper", status: "active", joinDate: "2023-04-05", email: "keeper@barbablanca.com", phone: "+1234567893" },
-  ]);
-
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    position: "",
-    status: "active",
-    email: "",
-    phone: "",
-  });
+  const [formData, setFormData] = useState({ name: "" });
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const positions = ["Captain", "Striker", "Midfielder", "Defender", "Goalkeeper", "Winger"];
-  const statuses = ["active", "inactive", "suspended"];
+  const fetchTeamMembers = async () => {
+    try {
+      const response = await fetch('/api/team');
+      if (response.ok) {
+        const data = await response.json();
+        setTeamMembers(data.teamMembers || []);
+      } else {
+         throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Failed to fetch team members:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch team members",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleAddMember = () => {
-    const newMember: TeamMember = {
-      id: Date.now(),
-      ...formData,
-      joinDate: new Date().toISOString().split('T')[0],
-    };
-    setTeamMembers([...teamMembers, newMember]);
-    setFormData({ name: "", position: "", status: "active", email: "", phone: "" });
-    setIsAddDialogOpen(false);
+  useEffect(() => {
+    fetchTeamMembers();
+  }, []);
+
+  const handleAddMember = async () => {
+    if (!formData.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/team', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: formData.name.trim() }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Team member added successfully",
+        });
+        setFormData({ name: "" });
+        setIsAddDialogOpen(false);
+        await fetchTeamMembers();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add member');
+      }
+    } catch (error) {
+      console.error("Failed to add team member:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add team member",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEditMember = (member: TeamMember) => {
     setEditingMember(member);
-    setFormData({
-      name: member.name,
-      position: member.position,
-      status: member.status,
-      email: member.email,
-      phone: member.phone,
-    });
+    setFormData({ name: member.name });
   };
 
-  const handleUpdateMember = () => {
-    if (editingMember) {
-      setTeamMembers(teamMembers.map(member => 
-        member.id === editingMember.id 
-          ? { ...member, ...formData }
-          : member
-      ));
-      setEditingMember(null);
-      setFormData({ name: "", position: "", status: "active", email: "", phone: "" });
+  const handleUpdateMember = async () => {
+    if (!editingMember || !formData.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/team', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          id: editingMember.id, 
+          name: formData.name.trim() 
+        }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Team member updated successfully",
+        });
+        setEditingMember(null);
+        setFormData({ name: "" });
+        await fetchTeamMembers();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update member');
+      }
+    } catch (error) {
+      console.error("Failed to update team member:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update team member",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleDeleteMember = (id: number) => {
-    setTeamMembers(teamMembers.filter(member => member.id !== id));
-  };
+  const handleDeleteMember = async (id: number) => {
+    try {
+      const response = await fetch(`/api/team?id=${id}`, {
+        method: 'DELETE',
+      });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active": return "bg-green-600";
-      case "inactive": return "bg-gray-600";
-      case "suspended": return "bg-red-600";
-      default: return "bg-gray-600";
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Team member deleted successfully",
+        });
+        await fetchTeamMembers();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete member');
+      }
+    } catch (error) {
+      console.error("Failed to delete team member:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete team member",
+        variant: "destructive",
+      });
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black via-red-950 to-black">
+        <Header />
+        <div className="container mx-auto px-4 py-20">
+          <div className="text-center text-white">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-red-950 to-black">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-20">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold text-red-500 mb-2 font-serif">TEAM MANAGEMENT</h1>
-            <p className="text-gray-300">Manage your clan members and their roles</p>
+            <p className="text-gray-300">Manage your clan members</p>
           </div>
-          
+
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-red-600 hover:bg-red-700">
@@ -117,57 +199,10 @@ export default function TeamManagementPage() {
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={(e) => setFormData({ name: e.target.value })}
                     className="bg-gray-900 border-red-800 text-white"
                     placeholder="Enter member name"
                   />
-                </div>
-                <div>
-                  <Label htmlFor="position" className="text-white">Position</Label>
-                  <Select value={formData.position} onValueChange={(value) => setFormData({...formData, position: value})}>
-                    <SelectTrigger className="bg-gray-900 border-red-800 text-white">
-                      <SelectValue placeholder="Select position" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-red-800">
-                      {positions.map((position) => (
-                        <SelectItem key={position} value={position}>{position}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="email" className="text-white">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="bg-gray-900 border-red-800 text-white"
-                    placeholder="Enter email address"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone" className="text-white">Phone</Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    className="bg-gray-900 border-red-800 text-white"
-                    placeholder="Enter phone number"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="status" className="text-white">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
-                    <SelectTrigger className="bg-gray-900 border-red-800 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-red-800">
-                      {statuses.map((status) => (
-                        <SelectItem key={status} value={status}>{status}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </div>
                 <div className="flex gap-2 pt-4">
                   <Button onClick={handleAddMember} className="bg-red-600 hover:bg-red-700 flex-1">
@@ -190,57 +225,13 @@ export default function TeamManagementPage() {
               <CardContent className="p-6">
                 {editingMember?.id === member.id ? (
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-white">Name</Label>
-                        <Input
-                          value={formData.name}
-                          onChange={(e) => setFormData({...formData, name: e.target.value})}
-                          className="bg-gray-900 border-red-800 text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-white">Position</Label>
-                        <Select value={formData.position} onValueChange={(value) => setFormData({...formData, position: value})}>
-                          <SelectTrigger className="bg-gray-900 border-red-800 text-white">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-red-800">
-                            {positions.map((position) => (
-                              <SelectItem key={position} value={position}>{position}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label className="text-white">Email</Label>
-                        <Input
-                          value={formData.email}
-                          onChange={(e) => setFormData({...formData, email: e.target.value})}
-                          className="bg-gray-900 border-red-800 text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-white">Phone</Label>
-                        <Input
-                          value={formData.phone}
-                          onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                          className="bg-gray-900 border-red-800 text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-white">Status</Label>
-                        <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
-                          <SelectTrigger className="bg-gray-900 border-red-800 text-white">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-red-800">
-                            {statuses.map((status) => (
-                              <SelectItem key={status} value={status}>{status}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div>
+                      <Label className="text-white">Name</Label>
+                      <Input
+                        value={formData.name}
+                        onChange={(e) => setFormData({ name: e.target.value })}
+                        className="bg-gray-900 border-red-800 text-white"
+                      />
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={handleUpdateMember} className="bg-green-600 hover:bg-green-700">
@@ -254,34 +245,12 @@ export default function TeamManagementPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-xl font-bold text-white">{member.name}</h3>
-                        <Badge className={`${getStatusColor(member.status)} text-white`}>
-                          {member.status}
-                        </Badge>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-400">Position:</span>
-                          <span className="text-white ml-2">{member.position}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Join Date:</span>
-                          <span className="text-white ml-2">{member.joinDate}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Email:</span>
-                          <span className="text-white ml-2">{member.email}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Phone:</span>
-                          <span className="text-white ml-2">{member.phone}</span>
-                        </div>
-                      </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-xl font-bold text-white">{member.name}</h3>
+                      <span className="text-red-400 font-mono">ID: {member.id}</span>
                     </div>
-                    <div className="flex gap-2 ml-4">
+                    <div className="flex gap-2">
                       <Button 
                         size="sm" 
                         variant="outline" 

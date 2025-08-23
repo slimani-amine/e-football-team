@@ -27,8 +27,7 @@ export async function POST(request: NextRequest) {
     
     const data = await request.json();
     const newMember = database.addTeamMember({
-      ...data,
-      joinDate: new Date().toISOString().split('T')[0],
+      name: data.name
     });
     
     return NextResponse.json({ member: newMember });

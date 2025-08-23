@@ -5,19 +5,6 @@
 export interface TeamMember {
   id: number;
   name: string;
-  position: string;
-  status: string;
-  joinDate: string;
-  email: string;
-  phone: string;
-  avatar?: string;
-  bio?: string;
-  stats?: {
-    goals: number;
-    assists: number;
-    matches: number;
-    rating: number;
-  };
 }
 
 export interface NewsArticle {
@@ -89,50 +76,10 @@ export interface Achievement {
 // Database storage
 class Database {
   private teamMembers: TeamMember[] = [
-    { 
-      id: 1, 
-      name: "CAPTAIN WHITEBEARD", 
-      position: "Captain", 
-      status: "active", 
-      joinDate: "2023-01-15", 
-      email: "captain@barbablanca.com", 
-      phone: "+1234567890",
-      bio: "Legendary captain with 10 years of experience",
-      stats: { goals: 150, assists: 89, matches: 200, rating: 9.5 }
-    },
-    { 
-      id: 2, 
-      name: "RED DEMON", 
-      position: "Striker", 
-      status: "active", 
-      joinDate: "2023-02-20", 
-      email: "demon@barbablanca.com", 
-      phone: "+1234567891",
-      bio: "Fierce striker known for decisive goals",
-      stats: { goals: 180, assists: 45, matches: 150, rating: 9.2 }
-    },
-    { 
-      id: 3, 
-      name: "IRON WALL", 
-      position: "Defender", 
-      status: "active", 
-      joinDate: "2023-03-10", 
-      email: "wall@barbablanca.com", 
-      phone: "+1234567892",
-      bio: "Solid defender with incredible tackling skills",
-      stats: { goals: 12, assists: 30, matches: 180, rating: 8.8 }
-    },
-    { 
-      id: 4, 
-      name: "SHADOW KEEPER", 
-      position: "Goalkeeper", 
-      status: "active", 
-      joinDate: "2023-04-05", 
-      email: "keeper@barbablanca.com", 
-      phone: "+1234567893",
-      bio: "Elite goalkeeper with lightning reflexes",
-      stats: { goals: 0, assists: 5, matches: 175, rating: 9.0 }
-    }
+    { id: 1, name: "CAPTAIN WHITEBEARD" },
+    { id: 2, name: "RED DEMON" },
+    { id: 3, name: "IRON WALL" },
+    { id: 4, name: "SHADOW KEEPER" }
   ];
 
   private newsArticles: NewsArticle[] = [
@@ -278,8 +225,8 @@ class Database {
 
   addTeamMember(member: Omit<TeamMember, 'id'>): TeamMember {
     const newMember = {
-      ...member,
-      id: Date.now()
+      id: Date.now(),
+      name: member.name
     };
     this.teamMembers.push(newMember);
     return newMember;

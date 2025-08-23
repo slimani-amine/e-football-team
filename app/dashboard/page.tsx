@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -132,23 +130,23 @@ interface DashboardSettings {
 export default function DashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
-  
+
   const [activeTab, setActiveTab] = useState("overview");
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
-  
+
   // Dialog states
   const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
   const [isAddNewsDialogOpen, setIsAddNewsDialogOpen] = useState(false);
   const [isAddMatchDialogOpen, setIsAddMatchDialogOpen] = useState(false);
   const [isAddAchievementDialogOpen, setIsAddAchievementDialogOpen] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
-  
+
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [editingNews, setEditingNews] = useState<NewsArticle | null>(null);
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
   const [editingAchievement, setEditingAchievement] = useState<Achievement | null>(null);
-  
+
   // Data states
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([]);
@@ -217,13 +215,13 @@ export default function DashboardPage() {
           router.push('/auth/login');
           return;
         }
-        
+
         const { user } = await response.json();
         if (!user.isAdmin) {
           router.push('/auth/login');
           return;
         }
-        
+
         setUser(user);
         await loadData();
       } catch (error) {
@@ -348,7 +346,7 @@ export default function DashboardPage() {
   const handleDeleteMember = async (id: number) => {
     try {
       const response = await fetch(`/api/team?id=${id}`, { method: 'DELETE' });
-      
+
       if (response.ok) {
         setTeamMembers(teamMembers.filter(member => member.id !== id));
         toast({
@@ -604,7 +602,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-red-950 to-black">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-20">
         <div className="mb-8 flex items-center justify-between">
           <div>
@@ -690,7 +688,7 @@ export default function DashboardPage() {
                 </div>
               </DialogContent>
             </Dialog>
-            
+
             <div className="flex items-center gap-2 bg-black/50 px-4 py-2 rounded-lg border border-red-800/50">
               <Shield className="w-5 h-5 text-red-400" />
               <span className="text-white">Welcome, {user.username}</span>
@@ -813,107 +811,15 @@ export default function DashboardPage() {
                     </DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4 max-h-96 overflow-y-auto">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-white">Name</Label>
-                        <Input
-                          value={memberForm.name}
-                          onChange={(e) => setMemberForm({...memberForm, name: e.target.value})}
-                          className="bg-gray-900 border-red-800 text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-white">Position</Label>
-                        <Select value={memberForm.position} onValueChange={(value) => setMemberForm({...memberForm, position: value})}>
-                          <SelectTrigger className="bg-gray-900 border-red-800 text-white">
-                            <SelectValue placeholder="Select position" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-red-800">
-                            {positions.map((position) => (
-                              <SelectItem key={position} value={position}>{position}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-white">Email</Label>
-                        <Input
-                          type="email"
-                          value={memberForm.email}
-                          onChange={(e) => setMemberForm({...memberForm, email: e.target.value})}
-                          className="bg-gray-900 border-red-800 text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-white">Phone</Label>
-                        <Input
-                          value={memberForm.phone}
-                          onChange={(e) => setMemberForm({...memberForm, phone: e.target.value})}
-                          className="bg-gray-900 border-red-800 text-white"
-                        />
-                      </div>
-                    </div>
                     <div>
-                      <Label className="text-white">Bio</Label>
-                      <Textarea
-                        value={memberForm.bio}
-                        onChange={(e) => setMemberForm({...memberForm, bio: e.target.value})}
+                      <Label htmlFor="teamName" className="text-white">Name</Label>
+                      <Input
+                        id="teamName"
+                        value={memberForm.name}
+                        onChange={(e) => setMemberForm({...memberForm, name: e.target.value})}
                         className="bg-gray-900 border-red-800 text-white"
+                        placeholder="Enter member name"
                       />
-                    </div>
-                    <div className="grid grid-cols-4 gap-4">
-                      <div>
-                        <Label className="text-white">Goals</Label>
-                        <Input
-                          type="number"
-                          value={memberForm.stats.goals}
-                          onChange={(e) => setMemberForm({...memberForm, stats: {...memberForm.stats, goals: parseInt(e.target.value) || 0}})}
-                          className="bg-gray-900 border-red-800 text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-white">Assists</Label>
-                        <Input
-                          type="number"
-                          value={memberForm.stats.assists}
-                          onChange={(e) => setMemberForm({...memberForm, stats: {...memberForm.stats, assists: parseInt(e.target.value) || 0}})}
-                          className="bg-gray-900 border-red-800 text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-white">Matches</Label>
-                        <Input
-                          type="number"
-                          value={memberForm.stats.matches}
-                          onChange={(e) => setMemberForm({...memberForm, stats: {...memberForm.stats, matches: parseInt(e.target.value) || 0}})}
-                          className="bg-gray-900 border-red-800 text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-white">Rating</Label>
-                        <Input
-                          type="number"
-                          step="0.1"
-                          max="10"
-                          value={memberForm.stats.rating}
-                          onChange={(e) => setMemberForm({...memberForm, stats: {...memberForm.stats, rating: parseFloat(e.target.value) || 0}})}
-                          className="bg-gray-900 border-red-800 text-white"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label className="text-white">Status</Label>
-                      <Select value={memberForm.status} onValueChange={(value) => setMemberForm({...memberForm, status: value})}>
-                        <SelectTrigger className="bg-gray-900 border-red-800 text-white">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-gray-900 border-red-800">
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
                     <div className="flex gap-2">
                       <Button 
@@ -1486,4 +1392,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
