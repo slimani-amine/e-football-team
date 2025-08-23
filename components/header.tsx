@@ -64,6 +64,12 @@ export function Header() {
 
         <nav className="hidden md:flex items-center gap-6">
           <button
+            onClick={() => scrollToSection("news")}
+            className="text-foreground hover:text-primary transition-colors cursor-pointer"
+          >
+            News
+          </button>
+          <button
             onClick={() => scrollToSection("players")}
             className="text-foreground hover:text-primary transition-colors cursor-pointer"
           >
@@ -81,12 +87,7 @@ export function Header() {
           >
             Community
           </button>
-          <button
-            onClick={() => scrollToSection("sponsors")}
-            className="text-foreground hover:text-primary transition-colors cursor-pointer"
-          >
-            Sponsors
-          </button>
+
           <a
             href="/highlights"
             className="text-foreground hover:text-primary transition-colors"
@@ -122,6 +123,12 @@ export function Header() {
         <div className="md:hidden bg-background/95 backdrop-blur-sm border-b border-border">
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-4">
             <button
+              onClick={() => scrollToSection("news")}
+              className="text-left text-foreground hover:text-primary transition-colors py-2"
+            >
+              News
+            </button>
+            <button
               onClick={() => scrollToSection("players")}
               className="text-left text-foreground hover:text-primary transition-colors py-2"
             >
@@ -139,12 +146,7 @@ export function Header() {
             >
               Community
             </button>
-            <button
-              onClick={() => scrollToSection("sponsors")}
-              className="text-left text-foreground hover:text-primary transition-colors py-2"
-            >
-              Sponsors
-            </button>
+
             <a
               href="/highlights"
               className="text-left text-foreground hover:text-primary transition-colors py-2"

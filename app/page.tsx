@@ -1,10 +1,11 @@
-import { Header } from "@/components/header"
-import { HeroSection } from "@/components/hero-section"
-import { PlayersShowcase } from "@/components/players-showcase"
-import { AchievementsSection } from "@/components/achievements-section"
-import { CommunitySection } from "@/components/community-section"
-import { SponsorsSection } from "@/components/sponsors-section"
-import { Footer } from "@/components/footer"
+import { Header } from "@/components/header";
+import { HeroSection } from "@/components/hero-section";
+import { PlayersShowcase } from "@/components/players-showcase";
+import { AchievementsSection } from "@/components/achievements-section";
+import { CommunitySection } from "@/components/community-section";
+import { SponsorsSection } from "@/components/sponsors-section";
+import { News } from "@/components/news";
+import { Footer } from "@/components/footer";
 
 export default function HomePage() {
   return (
@@ -12,12 +13,13 @@ export default function HomePage() {
       <Header />
       <main>
         <HeroSection />
+        <News />
         <PlayersShowcase />
         <AchievementsSection />
         <CommunitySection />
-        <SponsorsSection />
+        {/* <SponsorsSection /> */}
       </main>
       <Footer />
     </div>
-  )
+  );
 }

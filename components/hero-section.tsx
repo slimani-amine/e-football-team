@@ -112,7 +112,7 @@ export function HeroSection() {
         className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-red-400 animate-bounce hover:text-red-300 transition-colors cursor-pointer p-2"
         onClick={() => {
           const nextSection =
-            document.getElementById("players") ||
+            document.getElementById("news") ||
             document.querySelector("section:nth-of-type(2)");
           nextSection?.scrollIntoView({ behavior: "smooth" });
         }}
