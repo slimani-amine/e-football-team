@@ -94,6 +94,12 @@ export function Header() {
           >
             Highlights
           </a>
+          <a
+            href="/dashboard"
+            className="text-foreground hover:text-primary transition-colors"
+          >
+            Dashboard
+          </a>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -153,6 +159,13 @@ export function Header() {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Highlights
+            </a>
+            <a
+              href="/dashboard"
+              className="text-left text-foreground hover:text-primary transition-colors py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Dashboard
             </a>
             <div className="pt-2 border-t border-border">
               <Button
