@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   generator: "v0.app",
 };
 
+import { Toaster } from "@/components/ui/toaster";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,7 +36,16 @@ export default function RootLayout({
       lang="en"
       className={`${playfairDisplay.variable} ${sourceSans.variable} antialiased`}
     >
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        {children}
+        <Toaster />
+        <div style={{ display: 'none' }}>
+          <script
+            src="https://auth.util.repl.co/script.js"
+            data-authed="location.reload()"
+          />
+        </div>
+      </body>
     </html>
   );
 }
