@@ -7,19 +7,30 @@ export interface User {
 }
 
 export function parseReplitAuth(headers: any): User | null {
-  const userId = headers['x-replit-user-id'];
-  const userName = headers['x-replit-user-name'];
-  const userRoles = headers['x-replit-user-roles'];
+  // Handle both direct headers and Headers object
+  const getUserHeader = (key: string) => {
+    return headers.get ? headers.get(key) : headers[key];
+  };
+
+  const userId = getUserHeader('x-replit-user-id');
+  const userName = getUserHeader('x-replit-user-name');
+  const userRoles = getUserHeader('x-replit-user-roles');
 
   if (!userId || !userName) {
     return null;
   }
 
+  // Check if user is admin (you can modify this logic as needed)
+  const isAdmin = userRoles?.includes('admin') || 
+                  userName === 'CAPTAIN WHITEBEARD' ||
+                  userName.toLowerCase().includes('admin') ||
+                  userId === 'your-admin-user-id'; // Replace with your actual admin user ID
+
   return {
     id: userId,
     username: userName,
     roles: userRoles ? userRoles.split(',') : [],
-    isAdmin: userRoles?.includes('admin') || userName === 'CAPTAIN WHITEBEARD'
+    isAdmin: isAdmin
   };
 }
 
