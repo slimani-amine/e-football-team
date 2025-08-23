@@ -19,7 +19,7 @@ export default function TeamManagementPage() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
-  const [formData, setFormData] = useState({ name: "" });
+  const [formData, setFormData] = useState({ id: "", name: "" });
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -49,10 +49,10 @@ export default function TeamManagementPage() {
   }, []);
 
   const handleAddMember = async () => {
-    if (!formData.name.trim()) {
+    if (!formData.id.trim() || !formData.name.trim()) {
       toast({
         title: "Error",
-        description: "Name is required",
+        description: "ID and Name are required",
         variant: "destructive",
       });
       return;
@@ -62,7 +62,7 @@ export default function TeamManagementPage() {
       const response = await fetch('/api/team', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: formData.name.trim() }),
+        body: JSON.stringify({ id: parseInt(formData.id.trim()), name: formData.name.trim() }),
       });
 
       if (response.ok) {
@@ -70,8 +70,8 @@ export default function TeamManagementPage() {
           title: "Success",
           description: "Team member added successfully",
         });
-        setFormData({ name: "" });
         setIsAddDialogOpen(false);
+        setFormData({ id: "", name: "" });
         await fetchTeamMembers();
       } else {
         const errorData = await response.json();
@@ -89,14 +89,15 @@ export default function TeamManagementPage() {
 
   const handleEditMember = (member: TeamMember) => {
     setEditingMember(member);
-    setFormData({ name: member.name });
+    setFormData({ id: member.id.toString(), name: member.name });
+    setIsAddDialogOpen(true);
   };
 
   const handleUpdateMember = async () => {
-    if (!editingMember || !formData.name.trim()) {
+    if (!editingMember || !formData.name.trim() || !formData.id.trim()) {
       toast({
         title: "Error",
-        description: "Name is required",
+        description: "ID and Name are required",
         variant: "destructive",
       });
       return;
@@ -106,9 +107,9 @@ export default function TeamManagementPage() {
       const response = await fetch('/api/team', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          id: editingMember.id, 
-          name: formData.name.trim() 
+        body: JSON.stringify({
+          id: editingMember.id,
+          name: formData.name.trim(),
         }),
       });
 
@@ -118,7 +119,7 @@ export default function TeamManagementPage() {
           description: "Team member updated successfully",
         });
         setEditingMember(null);
-        setFormData({ name: "" });
+        setFormData({ id: "", name: "" });
         await fetchTeamMembers();
       } else {
         const errorData = await response.json();
@@ -145,6 +146,7 @@ export default function TeamManagementPage() {
           title: "Success",
           description: "Team member deleted successfully",
         });
+        setFormData({ id: "", name: "" });
         await fetchTeamMembers();
       } else {
         const errorData = await response.json();
@@ -191,25 +193,43 @@ export default function TeamManagementPage() {
             </DialogTrigger>
             <DialogContent className="bg-black/90 border-red-800">
               <DialogHeader>
-                <DialogTitle className="text-red-400">Add New Team Member</DialogTitle>
+                <DialogTitle className="text-red-400">{editingMember ? "Edit Team Member" : "Add New Team Member"}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
+                {!editingMember && (
+                  <div>
+                    <Label htmlFor="id" className="text-white">Player ID</Label>
+                    <Input
+                      id="id"
+                      type="number"
+                      value={formData.id}
+                      onChange={(e) => setFormData({ ...formData, id: e.target.value })}
+                      className="bg-gray-900 border-red-800 text-white"
+                      placeholder="Enter unique player ID"
+                      min="1"
+                    />
+                  </div>
+                )}
                 <div>
-                  <Label htmlFor="name" className="text-white">Name</Label>
+                  <Label htmlFor="name" className="text-white">Player Name</Label>
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ name: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="bg-gray-900 border-red-800 text-white"
-                    placeholder="Enter member name"
+                    placeholder="Enter player name"
                   />
                 </div>
                 <div className="flex gap-2 pt-4">
-                  <Button onClick={handleAddMember} className="bg-red-600 hover:bg-red-700 flex-1">
+                  <Button onClick={editingMember ? handleUpdateMember : handleAddMember} className="bg-red-600 hover:bg-red-700 flex-1">
                     <Save className="w-4 h-4 mr-2" />
-                    Add Member
+                    {editingMember ? "Save Changes" : "Add Member"}
                   </Button>
-                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="border-gray-600">
+                  <Button variant="outline" onClick={() => {
+                    setIsAddDialogOpen(false);
+                    setEditingMember(null);
+                    setFormData({ id: "", name: "" });
+                  }} className="border-gray-600">
                     <X className="w-4 h-4 mr-2" />
                     Cancel
                   </Button>
@@ -226,10 +246,10 @@ export default function TeamManagementPage() {
                 {editingMember?.id === member.id ? (
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-white">Name</Label>
+                      <Label className="text-white">Player Name</Label>
                       <Input
                         value={formData.name}
-                        onChange={(e) => setFormData({ name: e.target.value })}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="bg-gray-900 border-red-800 text-white"
                       />
                     </div>
@@ -238,7 +258,10 @@ export default function TeamManagementPage() {
                         <Save className="w-4 h-4 mr-2" />
                         Save Changes
                       </Button>
-                      <Button variant="outline" onClick={() => setEditingMember(null)} className="border-gray-600">
+                      <Button variant="outline" onClick={() => {
+                        setEditingMember(null);
+                        setFormData({ id: "", name: "" });
+                      }} className="border-gray-600">
                         <X className="w-4 h-4 mr-2" />
                         Cancel
                       </Button>
@@ -251,17 +274,17 @@ export default function TeamManagementPage() {
                       <span className="text-red-400 font-mono">ID: {member.id}</span>
                     </div>
                     <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
+                      <Button
+                        size="sm"
+                        variant="outline"
                         className="border-yellow-600 text-yellow-400 hover:bg-yellow-600"
                         onClick={() => handleEditMember(member)}
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
+                      <Button
+                        size="sm"
+                        variant="outline"
                         className="border-red-600 text-red-400 hover:bg-red-600"
                         onClick={() => handleDeleteMember(member.id)}
                       >

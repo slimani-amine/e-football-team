@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -303,6 +302,65 @@ export default function CustomizationPage() {
     }
   };
 
+  const handleUpdateTournament = async (id: number, data: Partial<Tournament>) => {
+    try {
+      const response = await fetch(`/api/tournaments/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const updatedTournaments = tournaments.map(t => (t.id === id ? { ...t, ...data } : t));
+        setTournaments(updatedTournaments);
+        toast({
+          title: "Success",
+          description: "Tournament updated successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update tournament",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update tournament",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteTournament = async (id: number) => {
+    try {
+      const response = await fetch(`/api/tournaments/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setTournaments(tournaments.filter(t => t.id !== id));
+        toast({
+          title: "Success",
+          description: "Tournament deleted successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete tournament",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete tournament",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Training Management
   const handleAddTraining = async () => {
     try {
@@ -341,6 +399,65 @@ export default function CustomizationPage() {
       toast({
         title: "Error",
         description: "Failed to add training session",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpdateTraining = async (id: number, data: Partial<TrainingSession>) => {
+    try {
+      const response = await fetch(`/api/training/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const updatedSessions = trainingSessions.map(s => (s.id === id ? { ...s, ...data } : s));
+        setTrainingSessions(updatedSessions);
+        toast({
+          title: "Success",
+          description: "Training session updated successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update training session",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update training session",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteTraining = async (id: number) => {
+    try {
+      const response = await fetch(`/api/training/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setTrainingSessions(trainingSessions.filter(s => s.id !== id));
+        toast({
+          title: "Success",
+          description: "Training session deleted successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete training session",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete training session",
         variant: "destructive",
       });
     }
@@ -1016,6 +1133,31 @@ export default function CustomizationPage() {
                           </div>
                         </div>
                       </div>
+                      <div className="flex gap-2 mt-4">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-blue-600 text-blue-400 hover:bg-blue-600"
+                          onClick={() => {
+                            const newStatus = tournament.status === 'upcoming' ? 'ongoing' : 
+                                           tournament.status === 'ongoing' ? 'completed' : 'upcoming';
+                            handleUpdateTournament(tournament.id, { status: newStatus });
+                          }}
+                        >
+                          <Play className="w-3 h-3 mr-1" />
+                          {tournament.status === 'upcoming' ? 'Start' : 
+                           tournament.status === 'ongoing' ? 'Complete' : 'Reopen'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-600 text-red-400 hover:bg-red-600"
+                          onClick={() => handleDeleteTournament(tournament.id)}
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Delete
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -1149,6 +1291,31 @@ export default function CustomizationPage() {
                             <span className="text-white ml-2">{session.coach}</span>
                           </div>
                         </div>
+                      </div>
+                      <div className="flex gap-2 mt-4">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-green-600 text-green-400 hover:bg-green-600"
+                          onClick={() => {
+                            const newStatus = session.status === 'scheduled' ? 'completed' : 
+                                           session.status === 'completed' ? 'cancelled' : 'scheduled';
+                            handleUpdateTraining(session.id, { status: newStatus });
+                          }}
+                        >
+                          <Clock className="w-3 h-3 mr-1" />
+                          {session.status === 'scheduled' ? 'Complete' : 
+                           session.status === 'completed' ? 'Cancel' : 'Reschedule'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-600 text-red-400 hover:bg-red-600"
+                          onClick={() => handleDeleteTraining(session.id)}
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Delete
+                        </Button>
                       </div>
                     </div>
                   </CardContent>

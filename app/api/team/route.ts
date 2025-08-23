@@ -26,7 +26,17 @@ export async function POST(request: NextRequest) {
     }
     
     const data = await request.json();
+    
+    // Check if ID is provided and valid
+    if (data.id) {
+      const existingMember = database.getTeamMembers().find(m => m.id === data.id);
+      if (existingMember) {
+        return NextResponse.json({ error: 'ID already exists' }, { status: 400 });
+      }
+    }
+    
     const newMember = database.addTeamMember({
+      ...(data.id && { id: data.id }), // Include ID if provided
       name: data.name,
       position: data.position || "Player",
       status: data.status || "active",

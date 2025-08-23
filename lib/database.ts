@@ -426,12 +426,14 @@ class Database {
     return this.teamMembers;
   }
 
-  addTeamMember(member: Omit<TeamMember, 'id'>): TeamMember {
+  addTeamMember(member: Omit<TeamMember, 'id'> & { id?: number }): TeamMember {
     const newMember = {
-      id: Date.now(),
+      id: member.id || Date.now(),
       joinDate: new Date().toISOString().split('T')[0],
       ...member
     };
+    delete (newMember as any).id; // Remove id from spread
+    newMember.id = member.id || Date.now(); // Set the correct id
     this.teamMembers.push(newMember);
     return newMember;
   }
