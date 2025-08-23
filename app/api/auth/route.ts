@@ -1,18 +1,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { parseReplitAuth, validateEmailPassword } from '@/lib/auth';
+import { validateEmailPassword } from '@/lib/auth';
 import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   try {
-    // First try Replit auth
-    const replitUser = parseReplitAuth(request.headers);
-    if (replitUser) {
-      return NextResponse.json({ user: replitUser });
-    }
-
-    // Then try session-based auth
-    const cookieStore = cookies();
+    // Check session-based auth
+    const cookieStore = await cookies();
     const sessionToken = cookieStore.get('admin_session');
     
     if (sessionToken?.value === 'admin_logged_in') {

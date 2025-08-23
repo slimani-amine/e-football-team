@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { parseReplitAuth, requireAdmin } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth';
 
 // In-memory storage (replace with database in production)
 let joinRequests = [
@@ -11,8 +11,11 @@ let joinRequests = [
 
 export async function GET(request: NextRequest) {
   try {
-    const user = parseReplitAuth(request.headers);
-    requireAdmin(user);
+    // Check session auth via cookies
+    const sessionCookie = request.cookies.get('admin_session');
+    if (sessionCookie?.value !== 'admin_logged_in') {
+      throw new Error('Unauthorized');
+    }
     
     return NextResponse.json({ joinRequests });
   } catch (error) {

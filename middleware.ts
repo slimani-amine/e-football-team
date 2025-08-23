@@ -1,18 +1,10 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { parseReplitAuth } from './lib/auth';
 
 export function middleware(request: NextRequest) {
-  // Check both Replit auth and session auth
+  // Check session auth
   const checkAuth = () => {
-    // First try Replit auth
-    const replitUser = parseReplitAuth(request.headers);
-    if (replitUser && replitUser.isAdmin) {
-      return true;
-    }
-
-    // Then try session auth
     const sessionCookie = request.cookies.get('admin_session');
     if (sessionCookie?.value === 'admin_logged_in') {
       return true;

@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { parseReplitAuth, requireAdmin } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth';
 
 // In-memory storage (replace with database in production)
 let newsArticles = [
@@ -11,8 +11,11 @@ let newsArticles = [
 
 export async function GET(request: NextRequest) {
   try {
-    const user = parseReplitAuth(request.headers);
-    requireAdmin(user);
+    // Check session auth via cookies
+    const sessionCookie = request.cookies.get('admin_session');
+    if (sessionCookie?.value !== 'admin_logged_in') {
+      throw new Error('Unauthorized');
+    }
     
     return NextResponse.json({ newsArticles });
   } catch (error) {
@@ -22,8 +25,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = parseReplitAuth(request.headers);
-    requireAdmin(user);
+    // Check session auth via cookies
+    const sessionCookie = request.cookies.get('admin_session');
+    if (sessionCookie?.value !== 'admin_logged_in') {
+      throw new Error('Unauthorized');
+    }
     
     const data = await request.json();
     const newArticle = {
@@ -43,8 +49,11 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const user = parseReplitAuth(request.headers);
-    requireAdmin(user);
+    // Check session auth via cookies
+    const sessionCookie = request.cookies.get('admin_session');
+    if (sessionCookie?.value !== 'admin_logged_in') {
+      throw new Error('Unauthorized');
+    }
     
     const data = await request.json();
     const { id, ...updateData } = data;
@@ -61,8 +70,11 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const user = parseReplitAuth(request.headers);
-    requireAdmin(user);
+    // Check session auth via cookies
+    const sessionCookie = request.cookies.get('admin_session');
+    if (sessionCookie?.value !== 'admin_logged_in') {
+      throw new Error('Unauthorized');
+    }
     
     const { searchParams } = new URL(request.url);
     const id = parseInt(searchParams.get('id') || '');
