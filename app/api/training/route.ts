@@ -10,8 +10,8 @@ export async function GET(request: NextRequest) {
       throw new Error('Unauthorized');
     }
     
-    const teamMembers = database.getTeamMembers();
-    return NextResponse.json({ teamMembers });
+    const trainingSessions = database.getTrainingSessions();
+    return NextResponse.json({ trainingSessions });
   } catch (error) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -26,32 +26,9 @@ export async function POST(request: NextRequest) {
     }
     
     const data = await request.json();
-    const newMember = database.addTeamMember({
-      name: data.name,
-      position: data.position || "Player",
-      status: data.status || "active",
-      email: data.email || "",
-      phone: data.phone || "",
-      bio: data.bio || "",
-      nationality: data.nationality || "",
-      age: data.age || undefined,
-      stats: data.stats || {
-        goals: 0,
-        assists: 0,
-        matches: 0,
-        rating: 0,
-        yellowCards: 0,
-        redCards: 0,
-        playtime: 0
-      },
-      socialLinks: data.socialLinks || {},
-      achievements: data.achievements || [],
-      preferredPosition: data.preferredPosition || data.position,
-      contractEndDate: data.contractEndDate || "",
-      salary: data.salary || undefined
-    });
+    const newSession = database.addTrainingSession(data);
     
-    return NextResponse.json({ member: newMember });
+    return NextResponse.json({ session: newSession });
   } catch (error) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -68,9 +45,9 @@ export async function PUT(request: NextRequest) {
     const data = await request.json();
     const { id, ...updateData } = data;
     
-    const success = database.updateTeamMember(id, updateData);
+    const success = database.updateTrainingSession(id, updateData);
     if (!success) {
-      return NextResponse.json({ error: 'Team member not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Training session not found' }, { status: 404 });
     }
     
     return NextResponse.json({ success: true });
@@ -90,9 +67,9 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const id = parseInt(searchParams.get('id') || '');
     
-    const success = database.deleteTeamMember(id);
+    const success = database.deleteTrainingSession(id);
     if (!success) {
-      return NextResponse.json({ error: 'Team member not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Training session not found' }, { status: 404 });
     }
     
     return NextResponse.json({ success: true });
