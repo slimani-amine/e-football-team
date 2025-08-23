@@ -8,9 +8,25 @@ export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/dashboard')) {
     const user = parseReplitAuth(request.headers);
     
-    if (!user || !user.isAdmin) {
-      // Redirect to login page or show auth prompt
+    if (!user) {
+      // User not authenticated, redirect to login
       return NextResponse.redirect(new URL('/auth/login', request.url));
+    }
+    
+    if (!user.isAdmin) {
+      // User authenticated but not admin, redirect to login with error
+      const loginUrl = new URL('/auth/login', request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // Protect API routes
+  if (request.nextUrl.pathname.startsWith('/api/') && 
+      !request.nextUrl.pathname.startsWith('/api/auth')) {
+    const user = parseReplitAuth(request.headers);
+    
+    if (!user || !user.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   }
 
