@@ -10,8 +10,8 @@ export async function GET(request: NextRequest) {
       throw new Error('Unauthorized');
     }
     
-    const teamMembers = database.getTeamMembers();
-    return NextResponse.json({ teamMembers });
+    const achievements = database.getAchievements();
+    return NextResponse.json({ achievements });
   } catch (error) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -26,12 +26,9 @@ export async function POST(request: NextRequest) {
     }
     
     const data = await request.json();
-    const newMember = database.addTeamMember({
-      ...data,
-      joinDate: new Date().toISOString().split('T')[0],
-    });
+    const newAchievement = database.addAchievement(data);
     
-    return NextResponse.json({ member: newMember });
+    return NextResponse.json({ achievement: newAchievement });
   } catch (error) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -48,9 +45,9 @@ export async function PUT(request: NextRequest) {
     const data = await request.json();
     const { id, ...updateData } = data;
     
-    const success = database.updateTeamMember(id, updateData);
+    const success = database.updateAchievement(id, updateData);
     if (!success) {
-      return NextResponse.json({ error: 'Team member not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Achievement not found' }, { status: 404 });
     }
     
     return NextResponse.json({ success: true });
@@ -70,9 +67,9 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const id = parseInt(searchParams.get('id') || '');
     
-    const success = database.deleteTeamMember(id);
+    const success = database.deleteAchievement(id);
     if (!success) {
-      return NextResponse.json({ error: 'Team member not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Achievement not found' }, { status: 404 });
     }
     
     return NextResponse.json({ success: true });

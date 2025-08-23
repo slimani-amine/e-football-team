@@ -1,14 +1,13 @@
-
 import { NextRequest, NextResponse } from 'next/server';
-import { validateEmailPassword } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { validateEmailPassword } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    // Check session-based auth
+    // Then try session-based auth
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get('admin_session');
-    
+
     if (sessionToken?.value === 'admin_logged_in') {
       return NextResponse.json({ 
         user: {
@@ -30,30 +29,32 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
-    
+
     const user = validateEmailPassword(email, password);
     if (!user) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    // Create a simple session (in production, use proper JWT or session management)
-    const response = NextResponse.json({ user, message: 'Login successful' });
-    response.cookies.set('admin_session', 'admin_logged_in', {
+    // Create response with session cookie
+    const response = NextResponse.json({ user });
+    const cookieStore = await cookies();
+    cookieStore.set('admin_session', 'admin_logged_in', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24, // 24 hours
-      path: '/',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7 // 7 days
     });
 
     return response;
   } catch (error) {
-    return NextResponse.json({ error: 'Login failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Authentication failed' }, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest) {
   // Logout endpoint
   const response = NextResponse.json({ message: 'Logged out successfully' });
-  response.cookies.delete('admin_session');
+  const cookieStore = await cookies();
+  cookieStore.delete('admin_session');
   return response;
 }

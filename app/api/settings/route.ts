@@ -10,21 +10,10 @@ export async function GET(request: NextRequest) {
       throw new Error('Unauthorized');
     }
     
-    const joinRequests = database.getJoinRequests();
-    return NextResponse.json({ joinRequests });
+    const settings = database.getSettings();
+    return NextResponse.json({ settings });
   } catch (error) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const data = await request.json();
-    const newRequest = database.addJoinRequest(data);
-    
-    return NextResponse.json({ request: newRequest });
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to create request' }, { status: 500 });
   }
 }
 
@@ -37,11 +26,10 @@ export async function PUT(request: NextRequest) {
     }
     
     const data = await request.json();
-    const { id, status } = data;
+    const success = database.updateSettings(data);
     
-    const success = database.updateJoinRequest(id, { status });
     if (!success) {
-      return NextResponse.json({ error: 'Join request not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
     }
     
     return NextResponse.json({ success: true });

@@ -20,9 +20,10 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Protect API routes (except auth endpoint)
+  // Protect API routes (except auth endpoint and public join requests)
   if (request.nextUrl.pathname.startsWith('/api/') && 
-      !request.nextUrl.pathname.startsWith('/api/auth')) {
+      !request.nextUrl.pathname.startsWith('/api/auth') &&
+      !request.nextUrl.pathname.match(/^\/api\/requests$/)) {
     if (!checkAuth()) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

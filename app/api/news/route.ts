@@ -1,13 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth';
-
-// In-memory storage (replace with database in production)
-let newsArticles = [
-  { id: 1, title: "Championship Final Victory", status: "published", date: "2024-03-01", views: 2500, category: "Tournament", content: "We dominated the championship..." },
-  { id: 2, title: "New Player Recruitment", status: "draft", date: "2024-03-02", views: 0, category: "Recruitment", content: "Looking for new talent..." },
-  { id: 3, title: "Training Schedule Update", status: "published", date: "2024-03-03", views: 950, category: "Training", content: "Updated training times..." },
-];
+import { database } from '@/lib/database';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,6 +10,7 @@ export async function GET(request: NextRequest) {
       throw new Error('Unauthorized');
     }
     
+    const newsArticles = database.getNewsArticles();
     return NextResponse.json({ newsArticles });
   } catch (error) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -32,14 +26,11 @@ export async function POST(request: NextRequest) {
     }
     
     const data = await request.json();
-    const newArticle = {
-      id: Date.now(),
+    const newArticle = database.addNewsArticle({
       ...data,
-      date: new Date().toISOString().split('T')[0],
-      views: 0,
-    };
-    
-    newsArticles.push(newArticle);
+      author: 'Admin Tarek',
+      tags: data.tags || []
+    });
     
     return NextResponse.json({ article: newArticle });
   } catch (error) {
@@ -58,9 +49,10 @@ export async function PUT(request: NextRequest) {
     const data = await request.json();
     const { id, ...updateData } = data;
     
-    newsArticles = newsArticles.map(article => 
-      article.id === id ? { ...article, ...updateData } : article
-    );
+    const success = database.updateNewsArticle(id, updateData);
+    if (!success) {
+      return NextResponse.json({ error: 'News article not found' }, { status: 404 });
+    }
     
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -79,7 +71,10 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const id = parseInt(searchParams.get('id') || '');
     
-    newsArticles = newsArticles.filter(article => article.id !== id);
+    const success = database.deleteNewsArticle(id);
+    if (!success) {
+      return NextResponse.json({ error: 'News article not found' }, { status: 404 });
+    }
     
     return NextResponse.json({ success: true });
   } catch (error) {
