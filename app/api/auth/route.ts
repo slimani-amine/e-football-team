@@ -1,17 +1,65 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { parseReplitAuth } from '@/lib/auth';
+import { parseReplitAuth, validateEmailPassword } from '@/lib/auth';
+import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   try {
-    const user = parseReplitAuth(request.headers);
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    // First try Replit auth
+    const replitUser = parseReplitAuth(request.headers);
+    if (replitUser) {
+      return NextResponse.json({ user: replitUser });
     }
 
-    return NextResponse.json({ user });
+    // Then try session-based auth
+    const cookieStore = cookies();
+    const sessionToken = cookieStore.get('admin_session');
+    
+    if (sessionToken?.value === 'admin_logged_in') {
+      return NextResponse.json({ 
+        user: {
+          id: 'admin-1',
+          username: 'Admin Tarek',
+          email: 'tarek@admin.com',
+          roles: ['admin'],
+          isAdmin: true
+        }
+      });
+    }
+
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   } catch (error) {
     return NextResponse.json({ error: 'Authentication failed' }, { status: 401 });
   }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const { email, password } = await request.json();
+    
+    const user = validateEmailPassword(email, password);
+    if (!user) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
+
+    // Create a simple session (in production, use proper JWT or session management)
+    const response = NextResponse.json({ user, message: 'Login successful' });
+    response.cookies.set('admin_session', 'admin_logged_in', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24, // 24 hours
+      path: '/',
+    });
+
+    return response;
+  } catch (error) {
+    return NextResponse.json({ error: 'Login failed' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  // Logout endpoint
+  const response = NextResponse.json({ message: 'Logged out successfully' });
+  response.cookies.delete('admin_session');
+  return response;
 }

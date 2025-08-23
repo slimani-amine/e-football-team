@@ -5,20 +5,21 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Shield, Users, AlertCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Shield, Users, AlertCircle, Mail, Lock, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginMethod, setLoginMethod] = useState<'email' | 'replit'>('email');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
   const router = useRouter();
 
   useEffect(() => {
-    // Load Replit auth script
-    const script = document.createElement('script');
-    script.src = 'https://auth.util.repl.co/script.js';
-    script.async = true;
-    document.head.appendChild(script);
-
     // Check if user is already authenticated
     const checkAuth = async () => {
       try {
@@ -38,6 +39,12 @@ export default function LoginPage() {
 
     checkAuth();
 
+    // Load Replit auth script for fallback
+    const script = document.createElement('script');
+    script.src = 'https://auth.util.repl.co/script.js';
+    script.async = true;
+    document.head.appendChild(script);
+
     return () => {
       // Cleanup script on unmount
       const existingScript = document.querySelector('script[src="https://auth.util.repl.co/script.js"]');
@@ -47,7 +54,39 @@ export default function LoginPage() {
     };
   }, [router]);
 
-  const handleLogin = () => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const { user } = await response.json();
+        if (user.isAdmin) {
+          router.push('/dashboard');
+        } else {
+          setError('Admin access required.');
+        }
+      } else {
+        const { error } = await response.json();
+        setError(error || 'Invalid credentials');
+      }
+    } catch (error) {
+      setError('Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleReplitLogin = () => {
     setIsLoading(true);
     setError(null);
 
@@ -72,13 +111,13 @@ export default function LoginPage() {
           left
       );
 
-      function authComplete(e) {
+      function authComplete(e: MessageEvent) {
         if (e.data !== "auth_complete") {
           return;
         }
 
         window.removeEventListener("message", authComplete);
-        authWindow.close();
+        authWindow?.close();
         
         // Check auth status after login
         setTimeout(async () => {
@@ -134,13 +173,86 @@ export default function LoginPage() {
               <p className="text-gray-400 text-sm">Team Management Portal</p>
             </div>
 
-            <Button
-              onClick={handleLogin}
-              disabled={isLoading}
-              className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50"
-            >
-              {isLoading ? 'Authenticating...' : 'Login with Replit'}
-            </Button>
+            {/* Login Method Toggle */}
+            <div className="flex bg-gray-800 rounded p-1 mb-4">
+              <button
+                className={`flex-1 py-2 px-3 text-sm rounded ${
+                  loginMethod === 'email' 
+                    ? 'bg-red-600 text-white' 
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                onClick={() => setLoginMethod('email')}
+              >
+                Email Login
+              </button>
+              <button
+                className={`flex-1 py-2 px-3 text-sm rounded ${
+                  loginMethod === 'replit' 
+                    ? 'bg-red-600 text-white' 
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                onClick={() => setLoginMethod('replit')}
+              >
+                Replit Auth
+              </button>
+            </div>
+
+            {loginMethod === 'email' ? (
+              <form onSubmit={handleEmailLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-white flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="tarek@admin.com"
+                    className="bg-gray-900/50 border-gray-700 text-white"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-white flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    Password
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                    placeholder="••••••••"
+                    className="bg-gray-900/50 border-gray-700 text-white"
+                    required
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    'Sign In'
+                  )}
+                </Button>
+              </form>
+            ) : (
+              <Button
+                onClick={handleReplitLogin}
+                disabled={isLoading}
+                className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50"
+              >
+                {isLoading ? 'Authenticating...' : 'Login with Replit'}
+              </Button>
+            )}
 
             <p className="text-xs text-gray-400">
               Only team administrators can access this area.

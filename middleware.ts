@@ -4,28 +4,34 @@ import type { NextRequest } from 'next/server';
 import { parseReplitAuth } from './lib/auth';
 
 export function middleware(request: NextRequest) {
+  // Check both Replit auth and session auth
+  const checkAuth = () => {
+    // First try Replit auth
+    const replitUser = parseReplitAuth(request.headers);
+    if (replitUser && replitUser.isAdmin) {
+      return true;
+    }
+
+    // Then try session auth
+    const sessionCookie = request.cookies.get('admin_session');
+    if (sessionCookie?.value === 'admin_logged_in') {
+      return true;
+    }
+
+    return false;
+  };
+
   // Only protect dashboard routes
   if (request.nextUrl.pathname.startsWith('/dashboard')) {
-    const user = parseReplitAuth(request.headers);
-    
-    if (!user) {
-      // User not authenticated, redirect to login
+    if (!checkAuth()) {
       return NextResponse.redirect(new URL('/auth/login', request.url));
-    }
-    
-    if (!user.isAdmin) {
-      // User authenticated but not admin, redirect to login with error
-      const loginUrl = new URL('/auth/login', request.url);
-      return NextResponse.redirect(loginUrl);
     }
   }
 
-  // Protect API routes
+  // Protect API routes (except auth endpoint)
   if (request.nextUrl.pathname.startsWith('/api/') && 
       !request.nextUrl.pathname.startsWith('/api/auth')) {
-    const user = parseReplitAuth(request.headers);
-    
-    if (!user || !user.isAdmin) {
+    if (!checkAuth()) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   }
