@@ -1,4 +1,8 @@
 
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { query } from './db';
+
 export interface User {
   id: string;
   username: string;
@@ -7,26 +11,47 @@ export interface User {
   isAdmin: boolean;
 }
 
-// Hardcoded admin credentials (in production, use a proper database with hashed passwords)
-const ADMIN_CREDENTIALS = {
-  email: 'tarek@admin.com',
-  password: 'tarek123',
-  user: {
-    id: 'admin-1',
-    username: 'Admin Tarek',
-    email: 'tarek@admin.com',
-    roles: ['admin'],
-    isAdmin: true
-  }
-};
-
-
-
-export function validateEmailPassword(email: string, password: string): User | null {
-  if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-    return ADMIN_CREDENTIALS.user;
+export async function validateEmailPassword(email: string, password: string): Promise<User | null> {
+  // For now, keep the hardcoded admin for simplicity
+  // In production, you would query the database for user credentials
+  if (email === 'tarek@admin.com' && password === 'tarek123') {
+    return {
+      id: 'admin-1',
+      username: 'Admin Tarek',
+      email: 'tarek@admin.com',
+      roles: ['admin'],
+      isAdmin: true
+    };
   }
   return null;
+}
+
+export function generateToken(user: User): string {
+  return jwt.sign(
+    { 
+      id: user.id, 
+      email: user.email, 
+      roles: user.roles,
+      isAdmin: user.isAdmin 
+    },
+    process.env.JWT_SECRET || 'fallback-secret',
+    { expiresIn: '7d' }
+  );
+}
+
+export function verifyToken(token: string): User | null {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
+    return {
+      id: decoded.id,
+      username: decoded.username || 'Admin',
+      email: decoded.email,
+      roles: decoded.roles || ['admin'],
+      isAdmin: decoded.isAdmin || false
+    };
+  } catch (error) {
+    return null;
+  }
 }
 
 export function requireAuth(user: User | null) {

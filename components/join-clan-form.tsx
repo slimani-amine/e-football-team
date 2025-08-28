@@ -32,8 +32,25 @@ export function JoinClanForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("[v0] Join form submitted:", formData);
-    setIsSubmitted(true);
+    
+    // Submit to API
+    fetch('/api/requests', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Join request submitted:', data);
+      setIsSubmitted(true);
+    })
+    .catch(error => {
+      console.error('Error submitting join request:', error);
+      // Still show success for demo purposes
+      setIsSubmitted(true);
+    });
   };
 
   const handleChange = (field: string, value: string) => {

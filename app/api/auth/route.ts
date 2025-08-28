@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
 
-    const user = validateEmailPassword(email, password);
+    const user = await validateEmailPassword(email, password);
     if (!user) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
